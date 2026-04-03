@@ -1,7 +1,8 @@
-import React, { useMemo, useState } from "react";
-import type { Faculty, Student, WeekKey } from "../data/seed";
+import React, { useMemo, useRef, useState } from "react";
+import * as XLSX from "xlsx";
+import type { Division, Faculty, Student, WeekKey } from "../data/seed";
 
-const PASSCODE = "SACSMASH2026";
+const PASSCODE = "SpringSmash2026";
 
 type TargetType = "student" | "faculty";
 
@@ -34,6 +35,7 @@ export interface AdminPanelProps {
   ) => void;
   onUndoLast: () => void;
   onResetAll: () => void;
+  onImportRoster: (students: Student[], faculty: Faculty[]) => void;
   lastEntry?: AdminLogEntry | null;
 }
 
@@ -43,6 +45,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
   onApplyUpdate,
   onUndoLast,
   onResetAll,
+  onImportRoster,
   lastEntry
 }) => {
   const [unlocked, setUnlocked] = useState(false);
@@ -56,6 +59,11 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
   const [confirmReset, setConfirmReset] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+
+  const [importError, setImportError] = useState<string | null>(null);
+  const [importSuccess, setImportSuccess] = useState<string | null>(null);
+  const [pendingImport, setPendingImport] = useState<{ students: Student[]; faculty: Faculty[] } | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const selectableStudents = useMemo(
     () =>
@@ -101,6 +109,95 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
     setSuccess("Donation applied successfully.");
     setAmount("");
     setNote("");
+  };
+
+  const handleExcelUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setImportError(null);
+    setImportSuccess(null);
+    setPendingImport(null);
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      try {
+        const data = evt.target?.result;
+        const workbook = XLSX.read(data, { type: "array" });
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json<Record<string, string>>(sheet, { defval: "" });
+
+        const newStudents: Student[] = [];
+        const newFaculty: Faculty[] = [];
+        let sCounter = 1;
+        let fCounter = 1;
+
+        const col = (row: Record<string, string>, ...keys: string[]) => {
+          for (const k of keys) {
+            const val = row[k] ?? row[k.toLowerCase()] ?? row[k.toUpperCase()] ?? "";
+            if (val.toString().trim()) return val.toString().trim();
+          }
+          return "";
+        };
+
+        for (const row of rows) {
+          const name = col(row, "Name", "name");
+          if (!name) continue;
+
+          const typeRaw = col(row, "Type", "Role", "type", "role").toLowerCase();
+          const isFaculty = typeRaw.includes("faculty") || typeRaw.includes("staff");
+
+          if (isFaculty) {
+            newFaculty.push({
+              id: `F${fCounter++}`,
+              name,
+              totals: { overall: 0, week1: 0, week2: 0, week3: 0, week4: 0 }
+            });
+          } else {
+            const grade = parseInt(col(row, "Grade", "grade"), 10) || 0;
+            const divRaw = col(row, "Division", "division").toLowerCase();
+            const division: Division =
+              divRaw.includes("upper") || divRaw === "us" ? "US" : "MS";
+            const houseOrClan =
+              col(row, "House/Clan", "House", "Clan", "house", "clan") || "Unknown";
+            const boardingRaw = col(row, "Boarding", "boarding", "Boarder", "boarder").toLowerCase();
+            const isBoarder =
+              boardingRaw.includes("boarder") || boardingRaw === "true" || boardingRaw === "yes";
+            const advisory =
+              col(row, "Advisory", "advisory") ||
+              (division === "US" ? "US Advisory 1" : "MS Advisory 1");
+
+            newStudents.push({
+              id: `S${sCounter++}`,
+              name,
+              grade,
+              division,
+              houseOrClan,
+              isBoarder,
+              advisoryGroup: advisory,
+              totals: { overall: 0, week1: 0, week2: 0, week3: 0, week4: 0 }
+            });
+          }
+        }
+
+        if (newStudents.length === 0 && newFaculty.length === 0) {
+          setImportError("No valid rows found. Check your column headers: Name, Type, Grade, Division, House/Clan, Boarding, Advisory.");
+          return;
+        }
+
+        setPendingImport({ students: newStudents, faculty: newFaculty });
+      } catch {
+        setImportError("Failed to read file. Make sure it's a valid .xlsx or .csv file.");
+      }
+    };
+    reader.readAsArrayBuffer(file);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const handleConfirmImport = () => {
+    if (!pendingImport) return;
+    onImportRoster(pendingImport.students, pendingImport.faculty);
+    setImportSuccess(`Imported ${pendingImport.students.length} students and ${pendingImport.faculty.length} faculty. All donations start at $0.`);
+    setPendingImport(null);
   };
 
   const lastSummary = useMemo(() => {
@@ -305,6 +402,52 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
               </p>
             ) : null}
           </form>
+
+          <div className="border-t border-red-400/30 pt-4 space-y-3">
+            <div>
+              <h3 className="text-[0.7rem] uppercase tracking-[0.2em] text-red-100/80 mb-1">
+                Import Roster from Excel
+              </h3>
+              <p className="text-xs text-red-100/60">
+                Upload an .xlsx or .csv file. Required columns: <span className="text-red-100/90 font-semibold">Name</span>, <span className="text-red-100/90 font-semibold">Type</span> (Student / Faculty), <span className="text-red-100/90 font-semibold">Grade</span>, <span className="text-red-100/90 font-semibold">Division</span> (US / MS), <span className="text-red-100/90 font-semibold">House/Clan</span>, <span className="text-red-100/90 font-semibold">Boarding</span> (Boarder / Day), <span className="text-red-100/90 font-semibold">Advisory</span>. All donations will start at $0.
+              </p>
+            </div>
+            <label className="inline-flex items-center justify-center rounded-2xl bg-black/40 border border-red-400/60 px-4 py-2.5 text-sm text-red-50 cursor-pointer hover:bg-black/60 transition-colors">
+              <span>Choose Excel / CSV File</span>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".xlsx,.xls,.csv"
+                className="hidden"
+                onChange={handleExcelUpload}
+              />
+            </label>
+            {importError ? <p className="text-xs text-red-200">{importError}</p> : null}
+            {importSuccess ? <p className="text-xs text-lime-200 font-body">{importSuccess}</p> : null}
+            {pendingImport ? (
+              <div className="space-y-2">
+                <p className="text-xs text-amber-200">
+                  Found <span className="font-semibold">{pendingImport.students.length} students</span> and <span className="font-semibold">{pendingImport.faculty.length} faculty</span>. This will <span className="font-semibold text-red-300">replace all current roster data</span> and reset all donations to $0. Continue?
+                </p>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={handleConfirmImport}
+                    className="inline-flex items-center rounded-2xl bg-red-500 px-4 py-2 text-xs font-semibold text-white hover:bg-red-400"
+                  >
+                    Yes, Replace Roster
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPendingImport(null)}
+                    className="inline-flex items-center rounded-2xl border border-red-400/60 px-4 py-2 text-xs font-semibold text-red-100 hover:bg-red-400/15"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            ) : null}
+          </div>
         </div>
       )}
     </div>

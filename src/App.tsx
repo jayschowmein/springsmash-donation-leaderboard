@@ -257,6 +257,12 @@ const App: React.FC = () => {
     setAdminLog([]);
   };
 
+  const handleImportRoster = (newStudents: Student[], newFaculty: Faculty[]) => {
+    setStudents(newStudents);
+    setFaculty(newFaculty);
+    setAdminLog([]);
+  };
+
   return (
     <div className="min-h-screen relative overflow-hidden jungle-layer jungle-vines">
       {/* Decorative SVG foliage/animals over the jungle scene, kept subtle for readability */}
@@ -614,6 +620,7 @@ const App: React.FC = () => {
             onApplyUpdate={handleApplyUpdate}
             onUndoLast={handleUndoLast}
             onResetAll={handleResetAll}
+            onImportRoster={handleImportRoster}
             lastEntry={adminLog[adminLog.length - 1]}
           />
         </main>
