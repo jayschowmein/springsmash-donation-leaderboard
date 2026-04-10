@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { supabase } from "./lib/supabaseClient";
 import {
   seedStudents,
   seedFaculty,
@@ -18,12 +19,87 @@ import AdminPanel, {
 } from "./components/AdminPanel";
 import JungleBackground from "./components/JungleBackground";
 
-const LS_KEY_STUDENTS = "springsmash_students_v1";
-const LS_KEY_FACULTY = "springsmash_faculty_v1";
-const LS_KEY_LOG = "springsmash_admin_log_v1";
-
 const cloneStudents = (data: Student[]): Student[] => JSON.parse(JSON.stringify(data));
 const cloneFaculty = (data: Faculty[]): Faculty[] => JSON.parse(JSON.stringify(data));
+
+type StudentRow = {
+  id: string;
+  name: string;
+  grade: number;
+  division: string;
+  house_or_clan: string;
+  is_boarder: boolean;
+  advisory_group: string;
+  overall: number;
+  week1: number;
+  week2: number;
+  week3: number;
+  week4: number;
+};
+
+type FacultyRow = {
+  id: string;
+  name: string;
+  overall: number;
+  week1: number;
+  week2: number;
+  week3: number;
+  week4: number;
+};
+
+const rowToStudent = (row: StudentRow): Student => ({
+  id: row.id,
+  name: row.name,
+  grade: row.grade,
+  division: row.division as "US" | "MS",
+  houseOrClan: row.house_or_clan,
+  isBoarder: row.is_boarder,
+  advisoryGroup: row.advisory_group,
+  totals: {
+    overall: row.overall,
+    week1: row.week1,
+    week2: row.week2,
+    week3: row.week3,
+    week4: row.week4
+  }
+});
+
+const studentToRow = (student: Student): StudentRow => ({
+  id: student.id,
+  name: student.name,
+  grade: student.grade,
+  division: student.division,
+  house_or_clan: student.houseOrClan,
+  is_boarder: student.isBoarder,
+  advisory_group: student.advisoryGroup,
+  overall: student.totals.overall,
+  week1: student.totals.week1,
+  week2: student.totals.week2,
+  week3: student.totals.week3,
+  week4: student.totals.week4
+});
+
+const rowToFaculty = (row: FacultyRow): Faculty => ({
+  id: row.id,
+  name: row.name,
+  totals: {
+    overall: row.overall,
+    week1: row.week1,
+    week2: row.week2,
+    week3: row.week3,
+    week4: row.week4
+  }
+});
+
+const facultyToRow = (faculty: Faculty): FacultyRow => ({
+  id: faculty.id,
+  name: faculty.name,
+  overall: faculty.totals.overall,
+  week1: faculty.totals.week1,
+  week2: faculty.totals.week2,
+  week3: faculty.totals.week3,
+  week4: faculty.totals.week4
+});
 
 const sortByTotal = <T extends { totals: { overall: number } }>(items: T[]): T[] =>
   [...items].sort((a, b) => b.totals.overall - a.totals.overall);
@@ -69,38 +145,75 @@ const App: React.FC = () => {
   const [sacLogoError, setSacLogoError] = useState(false);
   const [jumpstartLogoError, setJumpstartLogoError] = useState(false);
 
-  // Initial load from localStorage or seed
-  useEffect(() => {
-    try {
-      const storedStudents = window.localStorage.getItem(LS_KEY_STUDENTS);
-      const storedFaculty = window.localStorage.getItem(LS_KEY_FACULTY);
-      const storedLog = window.localStorage.getItem(LS_KEY_LOG);
+  const fetchSupabaseData = async () => {
+    const [studentResponse, facultyResponse] = await Promise.all([
+      supabase.from<StudentRow>("students").select("*") ,
+      supabase.from<FacultyRow>("faculty").select("*")
+    ]);
 
-      if (storedStudents && storedFaculty) {
-        setStudents(JSON.parse(storedStudents));
-        setFaculty(JSON.parse(storedFaculty));
-      } else {
-        setStudents(cloneStudents(seedStudents));
-        setFaculty(cloneFaculty(seedFaculty));
-      }
-
-      if (storedLog) {
-        setAdminLog(JSON.parse(storedLog));
-      }
-    } catch {
-      setStudents(cloneStudents(seedStudents));
-      setFaculty(cloneFaculty(seedFaculty));
-      setAdminLog([]);
+    if (studentResponse.error) {
+      console.error("Supabase students error:", studentResponse.error);
     }
+    if (facultyResponse.error) {
+      console.error("Supabase faculty error:", facultyResponse.error);
+    }
+
+    if (studentResponse.data && studentResponse.data.length > 0) {
+      setStudents(studentResponse.data.map(rowToStudent));
+    } else {
+      setStudents(cloneStudents(seedStudents));
+    }
+
+    if (facultyResponse.data && facultyResponse.data.length > 0) {
+      setFaculty(facultyResponse.data.map(rowToFaculty));
+    } else {
+      setFaculty(cloneFaculty(seedFaculty));
+    }
+  };
+
+  const upsertStudentRows = async (studentsToSave: Student[]) => {
+    const rows = studentsToSave.map(studentToRow);
+    const { error } = await supabase.from<StudentRow>("students").upsert(rows, {
+      onConflict: "id"
+    });
+    if (error) console.error("Failed to save student rows", error);
+  };
+
+  const upsertFacultyRows = async (facultyToSave: Faculty[]) => {
+    const rows = facultyToSave.map(facultyToRow);
+    const { error } = await supabase.from<FacultyRow>("faculty").upsert(rows, {
+      onConflict: "id"
+    });
+    if (error) console.error("Failed to save faculty rows", error);
+  };
+
+  useEffect(() => {
+    void fetchSupabaseData();
   }, []);
 
-  // Persist to localStorage whenever data changes
   useEffect(() => {
-    if (!students.length || !faculty.length) return;
-    window.localStorage.setItem(LS_KEY_STUDENTS, JSON.stringify(students));
-    window.localStorage.setItem(LS_KEY_FACULTY, JSON.stringify(faculty));
-    window.localStorage.setItem(LS_KEY_LOG, JSON.stringify(adminLog));
-  }, [students, faculty, adminLog]);
+    const channel = supabase
+      .channel("realtime-donations")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "students" },
+        () => {
+          void fetchSupabaseData();
+        }
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "faculty" },
+        () => {
+          void fetchSupabaseData();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, []);
 
   const visibleStudents = useMemo(
     () => applySearchAndFilters(students, search, divisionFilter, boardingFilter),
@@ -175,7 +288,7 @@ const App: React.FC = () => {
   );
   const donationProgress = Math.min(1, totalDonations / FUNDRAISING_GOAL);
 
-  const handleApplyUpdate = (
+  const handleApplyUpdate = async (
     targetType: TargetType,
     targetId: string,
     weekKey: WeekKey,
@@ -183,93 +296,111 @@ const App: React.FC = () => {
     note?: string
   ) => {
     if (targetType === "student") {
-      setStudents((prev) =>
-        prev.map((st) => {
-          if (st.id !== targetId) return st;
-          const prevTotals = { ...st.totals };
-          const updatedTotals = { ...st.totals };
-          if (weekKey === "overall") {
-            updatedTotals.overall += amount;
-          } else {
-            updatedTotals[weekKey] += amount;
-            updatedTotals.overall += amount;
-          }
+      const nextStudents = students.map((st) => {
+        if (st.id !== targetId) return st;
+        const prevTotals = { ...st.totals };
+        const updatedTotals = { ...st.totals };
+        if (weekKey === "overall") {
+          updatedTotals.overall += amount;
+        } else {
+          updatedTotals[weekKey] += amount;
+          updatedTotals.overall += amount;
+        }
 
-          const entry: AdminLogEntry = {
-            id: `LOG-${Date.now()}`,
-            timestamp: Date.now(),
-            targetType,
-            targetId,
-            weekKey,
-            amount,
-            note,
-            previousTotals: prevTotals
-          };
-          setAdminLog((prevLog) => [...prevLog, entry]);
-          return { ...st, totals: updatedTotals };
-        })
-      );
+        const entry: AdminLogEntry = {
+          id: `LOG-${Date.now()}`,
+          timestamp: Date.now(),
+          targetType,
+          targetId,
+          weekKey,
+          amount,
+          note,
+          previousTotals: prevTotals
+        };
+        setAdminLog((prevLog) => [...prevLog, entry]);
+        return { ...st, totals: updatedTotals };
+      });
+
+      setStudents(nextStudents);
+      const updatedStudent = nextStudents.find((st) => st.id === targetId);
+      if (updatedStudent) {
+        await upsertStudentRows([updatedStudent]);
+      }
     } else {
-      setFaculty((prev) =>
-        prev.map((f) => {
-          if (f.id !== targetId) return f;
-          const prevTotals = { ...f.totals };
-          const updatedTotals = { ...f.totals };
-          if (weekKey === "overall") {
-            updatedTotals.overall += amount;
-          } else {
-            updatedTotals[weekKey] += amount;
-            updatedTotals.overall += amount;
-          }
+      const nextFaculty = faculty.map((f) => {
+        if (f.id !== targetId) return f;
+        const prevTotals = { ...f.totals };
+        const updatedTotals = { ...f.totals };
+        if (weekKey === "overall") {
+          updatedTotals.overall += amount;
+        } else {
+          updatedTotals[weekKey] += amount;
+          updatedTotals.overall += amount;
+        }
 
-          const entry: AdminLogEntry = {
-            id: `LOG-${Date.now()}`,
-            timestamp: Date.now(),
-            targetType,
-            targetId,
-            weekKey,
-            amount,
-            note,
-            previousTotals: prevTotals
-          };
-          setAdminLog((prevLog) => [...prevLog, entry]);
-          return { ...f, totals: updatedTotals };
-        })
-      );
+        const entry: AdminLogEntry = {
+          id: `LOG-${Date.now()}`,
+          timestamp: Date.now(),
+          targetType,
+          targetId,
+          weekKey,
+          amount,
+          note,
+          previousTotals: prevTotals
+        };
+        setAdminLog((prevLog) => [...prevLog, entry]);
+        return { ...f, totals: updatedTotals };
+      });
+
+      setFaculty(nextFaculty);
+      const updatedFaculty = nextFaculty.find((f) => f.id === targetId);
+      if (updatedFaculty) {
+        await upsertFacultyRows([updatedFaculty]);
+      }
     }
   };
 
-  const handleUndoLast = () => {
+  const handleUndoLast = async () => {
     const last = adminLog[adminLog.length - 1];
     if (!last) return;
 
     if (last.targetType === "student") {
-      setStudents((prev) =>
-        prev.map((st) =>
-          st.id === last.targetId ? { ...st, totals: { ...last.previousTotals } } : st
-        )
+      const nextStudents = students.map((st) =>
+        st.id === last.targetId ? { ...st, totals: { ...last.previousTotals } } : st
       );
+      setStudents(nextStudents);
+      const restoredStudent = nextStudents.find((st) => st.id === last.targetId);
+      if (restoredStudent) {
+        await upsertStudentRows([restoredStudent]);
+      }
     } else {
-      setFaculty((prev) =>
-        prev.map((f) =>
-          f.id === last.targetId ? { ...f, totals: { ...last.previousTotals } } : f
-        )
+      const nextFaculty = faculty.map((f) =>
+        f.id === last.targetId ? { ...f, totals: { ...last.previousTotals } } : f
       );
+      setFaculty(nextFaculty);
+      const restoredFaculty = nextFaculty.find((f) => f.id === last.targetId);
+      if (restoredFaculty) {
+        await upsertFacultyRows([restoredFaculty]);
+      }
     }
 
     setAdminLog((prev) => prev.slice(0, -1));
   };
 
-  const handleResetAll = () => {
-    setStudents(cloneStudents(seedStudents));
-    setFaculty(cloneFaculty(seedFaculty));
+  const handleResetAll = async () => {
+    const resetStudents = cloneStudents(seedStudents);
+    const resetFaculty = cloneFaculty(seedFaculty);
+    setStudents(resetStudents);
+    setFaculty(resetFaculty);
     setAdminLog([]);
+    await Promise.all([upsertStudentRows(resetStudents), upsertFacultyRows(resetFaculty)]);
   };
 
-  const handleImportRoster = (newStudents: Student[], newFaculty: Faculty[]) => {
+  const handleImportRoster = async (newStudents: Student[], newFaculty: Faculty[]) => {
     setStudents(newStudents);
     setFaculty(newFaculty);
     setAdminLog([]);
+    await Promise.all([upsertStudentRows(newStudents), upsertFacultyRows(newFaculty)]);
   };
 
   return (
