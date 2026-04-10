@@ -385,22 +385,48 @@ const App: React.FC = () => {
                 </p>
               </div>
             </div>
-            <div className="mt-5 grid gap-4 lg:grid-cols-[1.1fr_auto] lg:items-end">
-              <div className="rounded-[2rem] border border-jungle-400/30 bg-jungle-950/80 p-5 shadow-soft-card">
-                <div className="relative mx-auto h-[320px] w-full max-w-[260px]">
+            <div className="mt-5 grid gap-4 lg:grid-cols-[1.2fr_auto] lg:items-end">
+              <div className="relative rounded-[2rem] border border-jungle-400/30 bg-jungle-950/80 p-5 shadow-soft-card overflow-hidden">
+                <div className="relative mx-auto h-[340px] w-full max-w-[260px]">
                   <img
                     src="/assets/tree-thermometer.png"
                     alt="Tree donation thermometer"
                     className="h-full w-full object-contain"
                   />
-                  <div
-                    className="pointer-events-none absolute left-1/2 top-[110px] -translate-x-1/2 h-[170px] w-[42px] rounded-full bg-emerald-400/80 transition-all duration-500"
-                    style={{ height: `${donationProgress * 100}%` }}
-                  />
-                  <div className="absolute left-1/2 top-[110px] -translate-x-1/2 h-[170px] w-[42px] rounded-full border-2 border-stone-700" />
+                  <div className="pointer-events-none absolute left-1/2 top-[108px] -translate-x-1/2 h-[180px] w-[40px] overflow-hidden rounded-full">
+                    <div
+                      className="absolute inset-x-0 bottom-0 bg-emerald-400/90 transition-all duration-500"
+                      style={{ height: `${donationProgress * 100}%` }}
+                    />
+                  </div>
+                  <div className="absolute right-[-86px] top-[38px] hidden h-[220px] w-[86px] flex-col justify-between text-right text-stone-200 lg:flex">
+                    <span className="text-xs uppercase tracking-[0.24em] text-amber-200/80">Benchmarks</span>
+                    <div className="space-y-4 text-sm font-medium">
+                      <div className="flex items-center justify-end gap-2">
+                        <span className="h-1.5 w-6 rounded-full bg-stone-500" />
+                        <span>$75K</span>
+                      </div>
+                      <div className="flex items-center justify-end gap-2">
+                        <span className="h-1.5 w-6 rounded-full bg-stone-500" />
+                        <span>$55K</span>
+                      </div>
+                      <div className="flex items-center justify-end gap-2">
+                        <span className="h-1.5 w-6 rounded-full bg-stone-500" />
+                        <span>$35K</span>
+                      </div>
+                      <div className="flex items-center justify-end gap-2">
+                        <span className="h-1.5 w-6 rounded-full bg-stone-500" />
+                        <span>$15K</span>
+                      </div>
+                      <div className="flex items-center justify-end gap-2">
+                        <span className="h-1.5 w-6 rounded-full bg-stone-500" />
+                        <span>$0</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
                 <p className="mt-4 text-center text-sm text-stone-300">
-                  The tree image is now used as the fundraiser thermometer. The trunk fill rises as donations climb.
+                  The jungle tree image is now the thermometer. The green fill rises behind the trunk as progress increases.
                 </p>
               </div>
               <div className="rounded-3xl border border-emerald-300/20 bg-jungle-900/75 p-4 text-sm text-stone-200">
@@ -410,7 +436,7 @@ const App: React.FC = () => {
                     ? "Goal reached!"
                     : `${Math.round(donationProgress * 100)}% toward $150,000`}
                 </p>
-                <p className="mt-1 text-stone-300">The graphic image is used directly, with the trunk showing progress.</p>
+                <p className="mt-1 text-stone-300">Progress is shown inside the tree trunk with side benchmarks.</p>
               </div>
             </div>
           </div>
