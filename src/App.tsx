@@ -166,6 +166,15 @@ const App: React.FC = () => {
     return sortByTotal(filtered);
   }, [visibleStudents, selectedMSAdvisory]);
 
+  const FUNDRAISING_GOAL = 150000;
+  const totalDonations = useMemo(
+    () =>
+      students.reduce((sum, st) => sum + st.totals.overall, 0) +
+      faculty.reduce((sum, f) => sum + f.totals.overall, 0),
+    [students, faculty]
+  );
+  const donationProgress = Math.min(1, totalDonations / FUNDRAISING_GOAL);
+
   const handleApplyUpdate = (
     targetType: TargetType,
     targetId: string,
@@ -355,6 +364,49 @@ const App: React.FC = () => {
               <span className="text-white">Helping more kids access sport</span> through
               community-powered giving.
             </p>
+          </div>
+
+          <div className="rounded-[2rem] border border-jungle-400/40 bg-jungle-900/85 p-5 shadow-soft-card overflow-hidden">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+              <div className="space-y-1">
+                <p className="text-xs uppercase tracking-[0.26em] text-amber-200/80 font-semibold">
+                  Total SAC Donations
+                </p>
+                <h2 className="text-2xl sm:text-3xl font-bubble text-white">
+                  SpringSmash Goal Progress
+                </h2>
+              </div>
+              <div className="text-right">
+                <p className="text-xs uppercase tracking-[0.22em] text-stone-300">
+                  Fundraising target
+                </p>
+                <p className="font-semibold text-sm sm:text-base text-stone-100">
+                  $150,000 goal
+                </p>
+              </div>
+            </div>
+            <div className="mt-5">
+              <div className="relative h-4 rounded-full bg-stone-800/90 border border-stone-700 overflow-hidden">
+                <div
+                  className="absolute inset-y-0 left-0 bg-emerald-400/80"
+                  style={{ width: `${donationProgress * 100}%` }}
+                />
+              </div>
+              <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-sm text-stone-200">
+                <span className="inline-flex items-center gap-2">
+                  <span className="text-2xl">🌳</span>
+                  <span>
+                    {donationProgress >= 1
+                      ? "Goal reached — thank you, SAC community!"
+                      : `${Math.round(donationProgress * 100)}% toward the goal`}
+                  </span>
+                </span>
+                <span className="inline-flex items-center gap-2 text-stone-300">
+                  <span className="h-3 w-3 rounded-full bg-lime-400/80 ring-2 ring-lime-300/30" />
+                  <span>Jungle tree target line</span>
+                </span>
+              </div>
+            </div>
           </div>
 
           <SearchFilters

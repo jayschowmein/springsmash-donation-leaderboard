@@ -8,7 +8,7 @@ interface ProfileRowProps {
   houseOrClan?: string;
   divisionLabel?: Division;
   isBoarder?: boolean;
-  total: number;
+  total?: number;
   isFaculty?: boolean;
 }
 
@@ -86,13 +86,6 @@ const ProfileRow: React.FC<ProfileRowProps> = ({
             </>
           )}
         </div>
-      </div>
-
-      <div className="relative shrink-0 text-right">
-        <p className="text-xs sm:text-sm font-body uppercase tracking-[0.2em] text-stone-200/80">Total Donated</p>
-        <p className="font-bubble text-lg sm:text-xl text-stone-50 drop-shadow-md">
-          ${total.toLocaleString()}
-        </p>
       </div>
     </div>
   );
