@@ -385,26 +385,44 @@ const App: React.FC = () => {
                 </p>
               </div>
             </div>
-            <div className="mt-5">
-              <div className="relative h-4 rounded-full bg-stone-800/90 border border-stone-700 overflow-hidden">
-                <div
-                  className="absolute inset-y-0 left-0 bg-emerald-400/80"
-                  style={{ width: `${donationProgress * 100}%` }}
-                />
+            <div className="mt-5 grid gap-4 lg:grid-cols-[1.1fr_auto] lg:items-end">
+              <div className="rounded-[2rem] border border-jungle-400/30 bg-jungle-950/80 p-5 shadow-soft-card">
+                <div className="relative mx-auto h-[320px] w-full max-w-[260px]">
+                  <div className="absolute inset-x-0 top-0 flex justify-center">
+                    <div className="relative h-32 w-32">
+                      <div className="absolute left-1/2 top-0 h-20 w-20 -translate-x-1/2 rounded-full bg-emerald-500/95 shadow-[0_0_0_10px_rgba(52,211,153,0.16)]" />
+                      <div className="absolute left-1/2 top-4 h-24 w-24 -translate-x-1/2 rounded-full bg-emerald-600/95" />
+                      <div className="absolute left-1/2 top-8 h-20 w-20 -translate-x-1/2 rounded-full bg-emerald-400/90" />
+                      <div className="absolute left-1/2 top-12 h-16 w-16 -translate-x-1/2 rounded-full bg-emerald-500/95" />
+                      <div className="absolute left-1/2 top-16 h-18 w-18 -translate-x-1/2 rounded-full bg-emerald-500/90" />
+                    </div>
+                  </div>
+
+                  <div className="absolute left-1/2 top-[120px] -translate-x-1/2 w-24">
+                    <div className="relative h-[180px] w-full overflow-hidden rounded-[1rem] border-4 border-stone-700 bg-stone-900/90">
+                      <div
+                        className="absolute inset-x-0 bottom-0 bg-emerald-400/90 transition-all duration-500"
+                        style={{ height: `${donationProgress * 100}%` }}
+                      />
+                    </div>
+                    <div className="absolute left-1/2 top-0 h-8 w-8 -translate-x-1/2 rounded-full border-4 border-stone-700 bg-stone-900" />
+                  </div>
+
+                  <div className="absolute left-1/2 top-[260px] -translate-x-1/2 h-3 w-20 rounded-full bg-emerald-500/90 shadow-inner" />
+                  <div className="absolute left-1/2 top-[286px] -translate-x-1/2 h-4 w-24 rounded-full bg-amber-600/90" />
+                </div>
+                <p className="mt-4 text-center text-sm text-stone-300">
+                  Your fundraiser tree trunk is the thermometer: the green fill rises as donations grow toward the goal.
+                </p>
               </div>
-              <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-sm text-stone-200">
-                <span className="inline-flex items-center gap-2">
-                  <span className="text-2xl">🌳</span>
-                  <span>
-                    {donationProgress >= 1
-                      ? "Goal reached — thank you, SAC community!"
-                      : `${Math.round(donationProgress * 100)}% toward the goal`}
-                  </span>
-                </span>
-                <span className="inline-flex items-center gap-2 text-stone-300">
-                  <span className="h-3 w-3 rounded-full bg-lime-400/80 ring-2 ring-lime-300/30" />
-                  <span>Jungle tree target line</span>
-                </span>
+              <div className="rounded-3xl border border-emerald-300/20 bg-jungle-900/75 p-4 text-sm text-stone-200">
+                <p className="text-xs uppercase tracking-[0.22em] text-amber-200/80">Goal status</p>
+                <p className="mt-2 text-2xl font-semibold text-white">
+                  {donationProgress >= 1
+                    ? "Goal reached!"
+                    : `${Math.round(donationProgress * 100)}% toward $150,000`}
+                </p>
+                <p className="mt-1 text-stone-300">The tree graphic now shows the donation threshold visually in the trunk.</p>
               </div>
             </div>
           </div>
