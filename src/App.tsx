@@ -18,6 +18,7 @@ import AdminPanel, {
   type TargetType
 } from "./components/AdminPanel";
 import JungleBackground from "./components/JungleBackground";
+import TreeThermometer from "./components/TreeThermometer";
 
 const cloneStudents = (data: Student[]): Student[] => JSON.parse(JSON.stringify(data));
 const cloneFaculty = (data: Faculty[]): Faculty[] => JSON.parse(JSON.stringify(data));
@@ -519,18 +520,7 @@ const App: React.FC = () => {
             <div className="mt-5 grid gap-4 lg:grid-cols-[1.2fr_auto] lg:items-end">
               <div className="relative rounded-[2rem] border border-jungle-400/30 bg-jungle-950/80 p-5 shadow-soft-card overflow-hidden">
                 <div className="relative mx-auto h-[340px] w-full max-w-[260px] overflow-hidden rounded-[2rem] bg-jungle-950/70">
-                  <img
-                    src="/assets/tree-thermometer.png"
-                    alt="Tree donation thermometer"
-                    className="absolute inset-0 h-full w-auto min-w-full object-cover object-center"
-                  />
-                  <div className="pointer-events-none absolute left-1/2 top-[108px] -translate-x-1/2 h-[180px] w-[40px] overflow-hidden rounded-full">
-                    <div
-                      className="absolute inset-x-0 bottom-0 bg-emerald-400/90 transition-all duration-500"
-                      style={{ height: `${donationProgress * 100}%` }}
-                    />
-                  </div>
-                  <div className="absolute left-1/2 top-[108px] -translate-x-1/2 h-[180px] w-[40px] rounded-full border-2 border-stone-700" />
+                  <TreeThermometer progress={donationProgress} />
                   <div className="absolute right-[-86px] top-[38px] hidden h-[220px] w-[86px] flex-col justify-between text-right text-stone-200 lg:flex">
                     <span className="text-xs uppercase tracking-[0.24em] text-amber-200/80">Benchmarks</span>
                     <div className="space-y-4 text-sm font-medium">
