@@ -238,7 +238,7 @@ const buildFaculty = (): Faculty[] => [
   makeFaculty("F6", "Ms. Li", 360, 70, 80, 90, 120)
 ];
 
-export const seedStudents: Student[] = buildStudents();
+export const seedStudents: Student[] = [];
 
-export const seedFaculty: Faculty[] = buildFaculty();
+export const seedFaculty: Faculty[] = [];
 

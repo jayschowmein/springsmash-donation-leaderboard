@@ -280,7 +280,7 @@ const App: React.FC = () => {
     return sortByTotal(filtered);
   }, [visibleStudents, selectedMSAdvisory]);
 
-  const FUNDRAISING_GOAL = 150000;
+  const FUNDRAISING_GOAL = 50000;
   const totalDonations = useMemo(
     () =>
       students.reduce((sum, st) => sum + st.totals.overall, 0) +
@@ -513,7 +513,7 @@ const App: React.FC = () => {
                   Fundraising target
                 </p>
                 <p className="font-semibold text-sm sm:text-base text-stone-100">
-                  $150,000 goal
+                  $50,000 goal
                 </p>
               </div>
             </div>
@@ -526,19 +526,19 @@ const App: React.FC = () => {
                     <div className="space-y-4 text-sm font-medium">
                       <div className="flex items-center justify-end gap-2">
                         <span className="h-1.5 w-6 rounded-full bg-stone-500" />
-                        <span>$75K</span>
+                        <span>$25K</span>
                       </div>
                       <div className="flex items-center justify-end gap-2">
                         <span className="h-1.5 w-6 rounded-full bg-stone-500" />
-                        <span>$55K</span>
+                        <span>$18K</span>
                       </div>
                       <div className="flex items-center justify-end gap-2">
                         <span className="h-1.5 w-6 rounded-full bg-stone-500" />
-                        <span>$35K</span>
+                        <span>$12K</span>
                       </div>
                       <div className="flex items-center justify-end gap-2">
                         <span className="h-1.5 w-6 rounded-full bg-stone-500" />
-                        <span>$15K</span>
+                        <span>$5K</span>
                       </div>
                       <div className="flex items-center justify-end gap-2">
                         <span className="h-1.5 w-6 rounded-full bg-stone-500" />
@@ -556,7 +556,7 @@ const App: React.FC = () => {
                 <p className="mt-2 text-2xl font-semibold text-white">
                   {donationProgress >= 1
                     ? "Goal reached!"
-                    : `${Math.round(donationProgress * 100)}% toward $150,000`}
+                    : `${Math.round(donationProgress * 100)}% toward $50,000`}
                 </p>
                 <p className="mt-1 text-stone-300">Progress is shown inside the tree trunk with side benchmarks.</p>
               </div>
