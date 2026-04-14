@@ -522,10 +522,10 @@ const App: React.FC = () => {
                 <div className="relative h-[340px] w-[260px] shrink-0">
                   <TreeThermometer progress={donationProgress} />
                 </div>
-                <div className="flex h-[340px] flex-col justify-between pl-3 text-xs font-medium text-stone-300">
+                <div className="flex h-[340px] w-28 flex-col justify-between text-xs font-medium text-stone-300">
                   {["$50,000","$45,000","$40,000","$35,000","$30,000","$25,000","$20,000","$15,000","$10,000","$5,000"].map((label) => (
-                    <div key={label} className="flex items-center gap-1.5">
-                      <span className="inline-block h-px w-3 shrink-0 bg-stone-500" />
+                    <div key={label} className="flex items-center gap-2">
+                      <span className="flex-1 border-t border-stone-400/60" />
                       <span className="whitespace-nowrap">{label}</span>
                     </div>
                   ))}
