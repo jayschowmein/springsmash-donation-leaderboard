@@ -517,48 +517,22 @@ const App: React.FC = () => {
                 </p>
               </div>
             </div>
-            <div className="mt-5 grid gap-4 lg:grid-cols-[1.2fr_auto] lg:items-end">
-              <div className="relative rounded-[2rem] border border-jungle-400/30 bg-jungle-950/80 p-5 shadow-soft-card overflow-hidden">
-                <div className="relative mx-auto h-[340px] w-full max-w-[260px] overflow-hidden rounded-[2rem] bg-jungle-950/70">
-                  <TreeThermometer progress={donationProgress} />
-                  <div className="absolute right-[-86px] top-[38px] hidden h-[220px] w-[86px] flex-col justify-between text-right text-stone-200 lg:flex">
-                    <span className="text-xs uppercase tracking-[0.24em] text-amber-200/80">Benchmarks</span>
-                    <div className="space-y-4 text-sm font-medium">
-                      <div className="flex items-center justify-end gap-2">
-                        <span className="h-1.5 w-6 rounded-full bg-stone-500" />
-                        <span>$25K</span>
-                      </div>
-                      <div className="flex items-center justify-end gap-2">
-                        <span className="h-1.5 w-6 rounded-full bg-stone-500" />
-                        <span>$18K</span>
-                      </div>
-                      <div className="flex items-center justify-end gap-2">
-                        <span className="h-1.5 w-6 rounded-full bg-stone-500" />
-                        <span>$12K</span>
-                      </div>
-                      <div className="flex items-center justify-end gap-2">
-                        <span className="h-1.5 w-6 rounded-full bg-stone-500" />
-                        <span>$5K</span>
-                      </div>
-                      <div className="flex items-center justify-end gap-2">
-                        <span className="h-1.5 w-6 rounded-full bg-stone-500" />
-                        <span>$0</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <p className="mt-4 text-center text-sm text-stone-300">
-                  The jungle tree image is now the thermometer. The green fill rises behind the trunk as progress increases.
-                </p>
+            <div className="mt-5 flex flex-col items-center gap-4">
+              <div className="relative mx-auto h-[340px] w-full max-w-[260px]">
+                <TreeThermometer progress={donationProgress} />
               </div>
-              <div className="rounded-3xl border border-emerald-300/20 bg-jungle-900/75 p-4 text-sm text-stone-200">
-                <p className="text-xs uppercase tracking-[0.22em] text-amber-200/80">Goal status</p>
-                <p className="mt-2 text-2xl font-semibold text-white">
-                  {donationProgress >= 1
-                    ? "Goal reached!"
-                    : `${Math.round(donationProgress * 100)}% toward $50,000`}
+              <div className="w-full rounded-3xl border border-emerald-300/20 bg-jungle-900/75 px-5 py-4 flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.22em] text-amber-200/80">Goal status</p>
+                  <p className="mt-1 text-2xl font-semibold text-white">
+                    {donationProgress >= 1
+                      ? "Goal reached!"
+                      : `${Math.round(donationProgress * 100)}% toward $50,000`}
+                  </p>
+                </div>
+                <p className="text-2xl font-bubble text-emerald-300">
+                  ${totalDonations.toLocaleString()}
                 </p>
-                <p className="mt-1 text-stone-300">Progress is shown inside the tree trunk with side benchmarks.</p>
               </div>
             </div>
           </div>
