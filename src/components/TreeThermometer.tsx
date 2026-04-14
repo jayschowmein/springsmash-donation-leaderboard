@@ -7,25 +7,31 @@ interface TreeThermometerProps {
 const TreeThermometer: React.FC<TreeThermometerProps> = ({ progress }) => {
   const clampedProgress = Math.max(0, Math.min(1, progress));
   const fillPercent = clampedProgress * 100;
+  const unfillPercent = 100 - fillPercent;
 
   return (
     <div className="relative h-full w-full">
-      {/* Green thermometer fill rising from the bottom */}
-      <div
-        className="absolute inset-x-0 bottom-0 rounded-b-[2rem] transition-all duration-1000 ease-out"
+      {/* Green-tinted version — clipped to show only the filled bottom portion */}
+      <img
+        src="/assets/tree.png"
+        alt=""
+        aria-hidden="true"
+        className="absolute inset-0 h-full w-full object-contain object-bottom"
         style={{
-          height: `${fillPercent}%`,
-          background: "linear-gradient(to top, #16a34a, #5eead4)",
-          mixBlendMode: "multiply",
-          opacity: 0.75,
+          clipPath: `inset(${unfillPercent}% 0 0 0)`,
+          filter: "brightness(0.85) sepia(1) hue-rotate(80deg) saturate(3)",
+          transition: "clip-path 1s ease-out",
         }}
       />
-      {/* Tree image */}
+      {/* Normal version — clipped to show only the unfilled top portion */}
       <img
         src="/assets/tree.png"
         alt="Donation thermometer tree"
-        className="relative h-full w-full object-contain object-bottom"
-        style={{ mixBlendMode: "normal" }}
+        className="absolute inset-0 h-full w-full object-contain object-bottom"
+        style={{
+          clipPath: `inset(0 0 ${fillPercent}% 0)`,
+          transition: "clip-path 1s ease-out",
+        }}
       />
     </div>
   );
