@@ -11,7 +11,17 @@ const TreeThermometer: React.FC<TreeThermometerProps> = ({ progress }) => {
 
   return (
     <div className="relative h-full w-full">
-      {/* Green-tinted version — clipped to show only the filled bottom portion */}
+      {/* White silhouette — always visible as the "empty" outline */}
+      <img
+        src="/assets/tree.png"
+        alt="Donation thermometer tree"
+        className="absolute inset-0 h-full w-full object-contain object-bottom"
+        style={{
+          filter: "brightness(0) invert(1)",
+          opacity: 0.25,
+        }}
+      />
+      {/* Actual tree image — fills from the bottom as progress increases */}
       <img
         src="/assets/tree.png"
         alt=""
@@ -19,17 +29,6 @@ const TreeThermometer: React.FC<TreeThermometerProps> = ({ progress }) => {
         className="absolute inset-0 h-full w-full object-contain object-bottom"
         style={{
           clipPath: `inset(${unfillPercent}% 0 0 0)`,
-          filter: "brightness(0.85) sepia(1) hue-rotate(80deg) saturate(3)",
-          transition: "clip-path 1s ease-out",
-        }}
-      />
-      {/* Normal version — clipped to show only the unfilled top portion */}
-      <img
-        src="/assets/tree.png"
-        alt="Donation thermometer tree"
-        className="absolute inset-0 h-full w-full object-contain object-bottom"
-        style={{
-          clipPath: `inset(0 0 ${fillPercent}% 0)`,
           transition: "clip-path 1s ease-out",
         }}
       />

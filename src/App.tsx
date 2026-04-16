@@ -300,7 +300,7 @@ const App: React.FC = () => {
     return sortByTotal(filtered);
   }, [visibleStudents, selectedMSAdvisory]);
 
-  const FUNDRAISING_GOAL = 50000;
+  const FUNDRAISING_GOAL = 60000;
   const totalDonations = useMemo(
     () =>
       students.reduce((sum, st) => sum + st.totals.overall, 0) +
@@ -545,7 +545,7 @@ const App: React.FC = () => {
                   Fundraising target
                 </p>
                 <p className="font-semibold text-sm sm:text-base text-stone-100">
-                  $50,000 goal
+                  $60,000 goal
                 </p>
               </div>
             </div>
@@ -555,7 +555,7 @@ const App: React.FC = () => {
                   <TreeThermometer progress={donationProgress} />
                 </div>
                 <div className="flex h-[340px] w-28 flex-col justify-between text-xs font-medium text-stone-300">
-                  {["$50,000","$45,000","$40,000","$35,000","$30,000","$25,000","$20,000","$15,000","$10,000","$5,000"].map((label) => (
+                  {["$60,000","$54,000","$48,000","$42,000","$36,000","$30,000","$24,000","$18,000","$12,000","$6,000"].map((label) => (
                     <div key={label} className="flex items-center gap-2">
                       <span className="flex-1 border-t border-stone-400/60" />
                       <span className="whitespace-nowrap">{label}</span>
@@ -569,7 +569,7 @@ const App: React.FC = () => {
                   <p className="mt-1 text-2xl font-semibold text-white">
                     {donationProgress >= 1
                       ? "Goal reached!"
-                      : `${Math.round(donationProgress * 100)}% toward $50,000`}
+                      : `${Math.round(donationProgress * 100)}% toward $60,000`}
                   </p>
                 </div>
                 <p className="text-2xl font-bubble text-emerald-300">
