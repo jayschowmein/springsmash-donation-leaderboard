@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "./lib/supabaseClient";
 import {
   seedStudents,
@@ -145,6 +145,9 @@ const App: React.FC = () => {
   const [selectedMSAdvisory, setSelectedMSAdvisory] = useState<string>("ALL");
   const [sacLogoError, setSacLogoError] = useState(false);
   const [jumpstartLogoError, setJumpstartLogoError] = useState(false);
+  const [autoScroll, setAutoScroll] = useState(false);
+  const scrollDirectionRef = useRef<1 | -1>(1);
+  const rafRef = useRef<number | null>(null);
 
   const fetchSupabaseData = async () => {
     const [studentResponse, facultyResponse] = await Promise.all([
@@ -215,6 +218,23 @@ const App: React.FC = () => {
       void supabase.removeChannel(channel);
     };
   }, []);
+
+  useEffect(() => {
+    if (!autoScroll) {
+      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+      return;
+    }
+    const SPEED = 1.2;
+    const step = () => {
+      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+      window.scrollBy(0, SPEED * scrollDirectionRef.current);
+      if (window.scrollY >= maxScroll) scrollDirectionRef.current = -1;
+      else if (window.scrollY <= 0) scrollDirectionRef.current = 1;
+      rafRef.current = requestAnimationFrame(step);
+    };
+    rafRef.current = requestAnimationFrame(step);
+    return () => { if (rafRef.current !== null) cancelAnimationFrame(rafRef.current); };
+  }, [autoScroll]);
 
   const visibleStudents = useMemo(
     () => applySearchAndFilters(students, search, divisionFilter, boardingFilter),
@@ -410,6 +430,18 @@ const App: React.FC = () => {
       <JungleBackground />
       {/* Overlay keeps jungle scene at ~50% visibility so content stays clear */}
       <div className="absolute inset-0 z-[1] bg-jungle-950/40 pointer-events-none" />
+
+      <button
+        type="button"
+        onClick={() => setAutoScroll((v) => !v)}
+        className={`fixed bottom-5 right-5 z-50 font-bubble rounded-2xl border-2 px-4 py-2.5 text-sm font-bold shadow-bubble-sm transition-colors ${
+          autoScroll
+            ? "bg-jungle-orange border-amber-600/80 text-white"
+            : "bg-jungle-900/90 border-jungle-400/50 text-stone-200 hover:bg-jungle-800"
+        }`}
+      >
+        {autoScroll ? "⏸ Stop Scroll" : "▶ Auto Scroll"}
+      </button>
 
       <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10 space-y-6 sm:space-y-8">
         <header className="flex flex-col gap-4 sm:gap-5 md:gap-6">
