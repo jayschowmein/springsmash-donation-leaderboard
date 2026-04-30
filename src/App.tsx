@@ -300,6 +300,42 @@ const App: React.FC = () => {
     return sortByTotal(filtered);
   }, [visibleStudents, selectedMSAdvisory]);
 
+  const usHouseStandings = useMemo(() => {
+    const map = new Map<string, number>();
+    students
+      .filter((s) => s.division === "US" && s.houseOrClan)
+      .forEach((s) => {
+        map.set(s.houseOrClan, (map.get(s.houseOrClan) ?? 0) + s.totals.overall);
+      });
+    return Array.from(map.entries())
+      .map(([name, total]) => ({ name, total }))
+      .sort((a, b) => b.total - a.total);
+  }, [students]);
+
+  const msClanStandings = useMemo(() => {
+    const map = new Map<string, number>();
+    students
+      .filter((s) => s.division === "MS" && s.houseOrClan)
+      .forEach((s) => {
+        map.set(s.houseOrClan, (map.get(s.houseOrClan) ?? 0) + s.totals.overall);
+      });
+    return Array.from(map.entries())
+      .map(([name, total]) => ({ name, total }))
+      .sort((a, b) => b.total - a.total);
+  }, [students]);
+
+  const topAdvisoryStandings = useMemo(() => {
+    const map = new Map<string, number>();
+    students
+      .filter((s) => s.advisoryGroup)
+      .forEach((s) => {
+        map.set(s.advisoryGroup, (map.get(s.advisoryGroup) ?? 0) + s.totals.overall);
+      });
+    return Array.from(map.entries())
+      .map(([name, total]) => ({ name, total }))
+      .sort((a, b) => b.total - a.total);
+  }, [students]);
+
   const FUNDRAISING_GOAL = 60000;
   const totalDonations = useMemo(
     () =>
@@ -733,6 +769,132 @@ const App: React.FC = () => {
               {dayRanking.length === 0 ? (
                 <p className="text-xs sm:text-sm text-stone-200/85 font-body">
                   No day boy donations recorded yet.
+                </p>
+              ) : null}
+            </div>
+          </SectionCard>
+
+          <SectionCard
+            title="US House Standings"
+            subtitle="Upper School houses competing for the top spot — combined donations from all members."
+            defaultOpen
+          >
+            <div className="space-y-2.5 sm:space-y-3">
+              {usHouseStandings.map((house, idx) => {
+                const rankStyle =
+                  idx === 0
+                    ? "text-amber-400 border-amber-400/50 bg-amber-400/10"
+                    : idx === 1
+                    ? "text-slate-300 border-slate-300/50 bg-slate-300/10"
+                    : idx === 2
+                    ? "text-amber-600 border-amber-600/50 bg-amber-600/10"
+                    : "text-stone-400 border-stone-500/30 bg-stone-500/10";
+                return (
+                  <div
+                    key={house.name}
+                    className="flex items-center gap-3 rounded-2xl border border-jungle-500/25 bg-jungle-800/70 px-4 py-3 shadow-bubble-sm"
+                  >
+                    <div
+                      className={`w-8 h-8 rounded-full border-2 flex items-center justify-center font-bubble text-sm shrink-0 ${rankStyle}`}
+                    >
+                      {idx + 1}
+                    </div>
+                    <span className="flex-1 font-bubble text-sm sm:text-base text-white">
+                      {house.name}
+                    </span>
+                    <span className="font-bubble text-sm sm:text-base text-emerald-300">
+                      ${house.total.toLocaleString()}
+                    </span>
+                  </div>
+                );
+              })}
+              {usHouseStandings.length === 0 ? (
+                <p className="text-xs sm:text-sm text-stone-200/85 font-body">
+                  No Upper School house donations recorded yet.
+                </p>
+              ) : null}
+            </div>
+          </SectionCard>
+
+          <SectionCard
+            title="MS Clan Standings"
+            subtitle="Middle School clans battling it out for clan glory — combined donations from all members."
+            defaultOpen
+          >
+            <div className="space-y-2.5 sm:space-y-3">
+              {msClanStandings.map((clan, idx) => {
+                const rankStyle =
+                  idx === 0
+                    ? "text-amber-400 border-amber-400/50 bg-amber-400/10"
+                    : idx === 1
+                    ? "text-slate-300 border-slate-300/50 bg-slate-300/10"
+                    : idx === 2
+                    ? "text-amber-600 border-amber-600/50 bg-amber-600/10"
+                    : "text-stone-400 border-stone-500/30 bg-stone-500/10";
+                return (
+                  <div
+                    key={clan.name}
+                    className="flex items-center gap-3 rounded-2xl border border-jungle-500/25 bg-jungle-800/70 px-4 py-3 shadow-bubble-sm"
+                  >
+                    <div
+                      className={`w-8 h-8 rounded-full border-2 flex items-center justify-center font-bubble text-sm shrink-0 ${rankStyle}`}
+                    >
+                      {idx + 1}
+                    </div>
+                    <span className="flex-1 font-bubble text-sm sm:text-base text-white">
+                      {clan.name}
+                    </span>
+                    <span className="font-bubble text-sm sm:text-base text-emerald-300">
+                      ${clan.total.toLocaleString()}
+                    </span>
+                  </div>
+                );
+              })}
+              {msClanStandings.length === 0 ? (
+                <p className="text-xs sm:text-sm text-stone-200/85 font-body">
+                  No Middle School clan donations recorded yet.
+                </p>
+              ) : null}
+            </div>
+          </SectionCard>
+
+          <SectionCard
+            title="Top Advisory Standings"
+            subtitle="All advisories (US + MS) ranked by combined member donations."
+            defaultOpen
+          >
+            <div className="space-y-2.5 sm:space-y-3 max-h-[360px] overflow-y-auto pr-1">
+              {topAdvisoryStandings.map((adv, idx) => {
+                const rankStyle =
+                  idx === 0
+                    ? "text-amber-400 border-amber-400/50 bg-amber-400/10"
+                    : idx === 1
+                    ? "text-slate-300 border-slate-300/50 bg-slate-300/10"
+                    : idx === 2
+                    ? "text-amber-600 border-amber-600/50 bg-amber-600/10"
+                    : "text-stone-400 border-stone-500/30 bg-stone-500/10";
+                return (
+                  <div
+                    key={adv.name}
+                    className="flex items-center gap-3 rounded-2xl border border-jungle-500/25 bg-jungle-800/70 px-4 py-3 shadow-bubble-sm"
+                  >
+                    <div
+                      className={`w-8 h-8 rounded-full border-2 flex items-center justify-center font-bubble text-sm shrink-0 ${rankStyle}`}
+                    >
+                      {idx + 1}
+                    </div>
+                    <span className="flex-1 font-bubble text-sm sm:text-base text-white">
+                      {adv.name}
+                    </span>
+                    <span className="font-bubble text-sm sm:text-base text-emerald-300">
+                      ${adv.total.toLocaleString()}
+                    </span>
+                  </div>
+                );
+              })}
+              {topAdvisoryStandings.length === 0 ? (
+                <p className="text-xs sm:text-sm text-stone-200/85 font-body">
+                  No advisory donations recorded yet.
                 </p>
               ) : null}
             </div>
