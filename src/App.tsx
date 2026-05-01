@@ -529,7 +529,7 @@ const App: React.FC = () => {
               Jungle SpringSmash 2026 — Donation Leaderboard
             </h1>
             <p
-              className="font-body text-lg text-emerald-200 max-w-2xl mx-auto font-semibold italic"
+              className="font-body text-xl text-emerald-200 max-w-2xl mx-auto font-semibold italic"
               style={{
                 textShadow: '2px 2px 0px rgba(0,0,0,0.7), 4px 4px 0px rgba(0,0,0,0.5), 6px 6px 0px rgba(0,0,0,0.3)'
               }}
