@@ -528,10 +528,13 @@ const App: React.FC = () => {
             <h1 className="title-bubble font-bubble text-2xl sm:text-3xl md:text-4xl lg:text-[2.6rem] leading-tight">
               Jungle SpringSmash 2026 — Donation Leaderboard
             </h1>
-            <p className="font-body text-sm sm:text-base md:text-lg text-stone-200/95 max-w-2xl mx-auto font-semibold">
-              St. Andrew&apos;s College × Jumpstart —{" "}
-              <span className="text-white">Helping more kids access sport</span> through
-              community-powered giving.
+            <p
+              className="font-body text-lg text-emerald-200 max-w-2xl mx-auto font-semibold italic"
+              style={{
+                textShadow: '2px 2px 0px rgba(0,0,0,0.7), 4px 4px 0px rgba(0,0,0,0.5), 6px 6px 0px rgba(0,0,0,0.3)'
+              }}
+            >
+              EVERYONE PLAYS IN THE JUNGLE!
             </p>
           </div>
 
