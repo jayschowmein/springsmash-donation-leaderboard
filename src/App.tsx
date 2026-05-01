@@ -577,7 +577,7 @@ const App: React.FC = () => {
                       : `${Math.round(donationProgress * 100)}% toward $60,000`}
                   </p>
                 </div>
-                <p className="text-2xl font-bubble text-emerald-300">
+                <p className="text-4xl font-bold text-white drop-shadow-lg">
                   ${totalDonations.toLocaleString()}
                 </p>
               </div>
