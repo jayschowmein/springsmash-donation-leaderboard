@@ -436,6 +436,32 @@ const App: React.FC = () => {
       {/* Overlay keeps jungle scene at ~50% visibility so content stays clear */}
       <div className="absolute inset-0 z-[1] bg-jungle-950/40 pointer-events-none" />
 
+      {/* Vertical side banner */}
+      <div className="fixed left-0 top-1/2 -translate-y-1/2 z-40 hidden lg:flex flex-col items-center">
+        <div className="flex flex-col items-center gap-0 rounded-r-2xl border border-l-0 border-amber-400/30 bg-jungle-900/90 shadow-[4px_0_24px_rgba(0,0,0,0.4)] px-2.5 py-5 backdrop-blur-sm">
+          <span
+            className="font-bubble text-[0.7rem] tracking-[0.22em] text-amber-300 select-none"
+            style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
+          >
+            #EVERYONE PLAYS IN THE JUNGLE
+          </span>
+          <span className="mt-3 text-lg leading-none select-none" style={{ writingMode: "vertical-rl" }}>🌿</span>
+        </div>
+      </div>
+
+      {/* Mirror banner on right side */}
+      <div className="fixed right-0 top-1/2 -translate-y-1/2 z-40 hidden lg:flex flex-col items-center">
+        <div className="flex flex-col items-center gap-0 rounded-l-2xl border border-r-0 border-amber-400/30 bg-jungle-900/90 shadow-[-4px_0_24px_rgba(0,0,0,0.4)] px-2.5 py-5 backdrop-blur-sm">
+          <span className="mb-3 text-lg leading-none select-none" style={{ writingMode: "vertical-rl" }}>🌿</span>
+          <span
+            className="font-bubble text-[0.7rem] tracking-[0.22em] text-amber-300 select-none"
+            style={{ writingMode: "vertical-rl" }}
+          >
+            #EVERYONE PLAYS IN THE JUNGLE
+          </span>
+        </div>
+      </div>
+
       <button
         type="button"
         onClick={() => setAutoScroll((v) => !v)}
@@ -873,9 +899,7 @@ const App: React.FC = () => {
             defaultOpen={false}
           >
             <PrizeBanner prizes={[
-              { rank: "1st", prize: "$75 Visa Gift Card", icon: "💳", gold: true },
-              { rank: "2nd", prize: "$25 Starbucks", icon: "☕" },
-              { rank: "3rd", prize: "$25 Tim Hortons", icon: "🍵" },
+              { rank: "1st", prize: "$50 Visa Gift Card", icon: "💳", gold: true },
             ]} />
             <div className="space-y-2.5 sm:space-y-3 max-h-[320px] overflow-y-auto pr-1">
               {sortByTotal(visibleFaculty).map((f, idx) => (
