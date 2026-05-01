@@ -19,6 +19,7 @@ import AdminPanel, {
 } from "./components/AdminPanel";
 import JungleBackground from "./components/JungleBackground";
 import TreeThermometer from "./components/TreeThermometer";
+import PrizeBanner from "./components/PrizeBanner";
 
 const cloneStudents = (data: Student[]): Student[] => JSON.parse(JSON.stringify(data));
 const cloneFaculty = (data: Faculty[]): Faculty[] => JSON.parse(JSON.stringify(data));
@@ -141,8 +142,6 @@ const App: React.FC = () => {
   const [divisionFilter, setDivisionFilter] = useState<DivisionFilter>("ALL");
   const [boardingFilter, setBoardingFilter] = useState<BoardingFilter>("ALL");
   const [weeklyTab, setWeeklyTab] = useState<WeekKey>("week1");
-  const [selectedUSAdvisory, setSelectedUSAdvisory] = useState<string>("ALL");
-  const [selectedMSAdvisory, setSelectedMSAdvisory] = useState<string>("ALL");
   const [sacLogoError, setSacLogoError] = useState(false);
   const [jumpstartLogoError, setJumpstartLogoError] = useState(false);
   const [autoScroll, setAutoScroll] = useState(false);
@@ -258,48 +257,6 @@ const App: React.FC = () => {
     [visibleStudents, weeklyTab]
   );
 
-  const boarderRanking = useMemo(
-    () => sortByTotal(visibleStudents.filter((s) => s.isBoarder)),
-    [visibleStudents]
-  );
-  const dayRanking = useMemo(
-    () => sortByTotal(visibleStudents.filter((s) => !s.isBoarder)),
-    [visibleStudents]
-  );
-
-  const usAdvisories = useMemo(
-    () =>
-      Array.from(
-        new Set(students.filter((s) => s.division === "US").map((s) => s.advisoryGroup))
-      ).sort(),
-    [students]
-  );
-  const msAdvisories = useMemo(
-    () =>
-      Array.from(
-        new Set(students.filter((s) => s.division === "MS").map((s) => s.advisoryGroup))
-      ).sort(),
-    [students]
-  );
-
-  const usAdvisoryRanking = useMemo(() => {
-    const pool = visibleStudents.filter((s) => s.division === "US");
-    const filtered =
-      selectedUSAdvisory === "ALL"
-        ? pool
-        : pool.filter((s) => s.advisoryGroup === selectedUSAdvisory);
-    return sortByTotal(filtered);
-  }, [visibleStudents, selectedUSAdvisory]);
-
-  const msAdvisoryRanking = useMemo(() => {
-    const pool = visibleStudents.filter((s) => s.division === "MS");
-    const filtered =
-      selectedMSAdvisory === "ALL"
-        ? pool
-        : pool.filter((s) => s.advisoryGroup === selectedMSAdvisory);
-    return sortByTotal(filtered);
-  }, [visibleStudents, selectedMSAdvisory]);
-
   const usHouseStandings = useMemo(() => {
     const map = new Map<string, number>();
     students
@@ -324,10 +281,22 @@ const App: React.FC = () => {
       .sort((a, b) => b.total - a.total);
   }, [students]);
 
-  const topAdvisoryStandings = useMemo(() => {
+  const usAdvisoryStandings = useMemo(() => {
     const map = new Map<string, number>();
     students
-      .filter((s) => s.advisoryGroup)
+      .filter((s) => s.division === "US" && s.advisoryGroup)
+      .forEach((s) => {
+        map.set(s.advisoryGroup, (map.get(s.advisoryGroup) ?? 0) + s.totals.overall);
+      });
+    return Array.from(map.entries())
+      .map(([name, total]) => ({ name, total }))
+      .sort((a, b) => b.total - a.total);
+  }, [students]);
+
+  const msAdvisoryStandings = useMemo(() => {
+    const map = new Map<string, number>();
+    students
+      .filter((s) => s.division === "MS" && s.advisoryGroup)
       .forEach((s) => {
         map.set(s.advisoryGroup, (map.get(s.advisoryGroup) ?? 0) + s.totals.overall);
       });
@@ -631,6 +600,11 @@ const App: React.FC = () => {
             subtitle="Leaderboard leaders across all grades — auto-updated as donations are added."
             defaultOpen
           >
+            <PrizeBanner prizes={[
+              { rank: "1st", prize: "Meta VR Headset", icon: "🥽", gold: true },
+              { rank: "2nd", prize: "AirPods 3", icon: "🎧" },
+              { rank: "3rd", prize: "JBL Flip Essential 2", icon: "🔊" },
+            ]} />
             <div className="space-y-2.5 sm:space-y-3">
               {top3Overall.map((st, idx) => (
                 <ProfileRow
@@ -654,10 +628,13 @@ const App: React.FC = () => {
           </SectionCard>
 
           <SectionCard
-            title="Top 20 Overall Donors"
+            title="Top 20 Overall Donors - Event VIP Status!"
             subtitle="Deep dive into the full leaderboard across the event."
             defaultOpen={false}
           >
+            <PrizeBanner prizes={[
+              { rank: "Top 20", prize: "VIP Room & Fast Pass", icon: "🎟️", gold: true },
+            ]} />
             <div className="space-y-2.5 sm:space-y-3 max-h-[420px] overflow-y-auto pr-1">
               {top20Overall.map((st, idx) => (
                 <ProfileRow
@@ -680,7 +657,7 @@ const App: React.FC = () => {
             defaultOpen
           >
             <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
-              {(["week1", "week2", "week3", "week4"] as WeekKey[]).map((wKey) => (
+              {(["week1", "week2"] as WeekKey[]).map((wKey) => (
                 <button
                   key={wKey}
                   type="button"
@@ -691,16 +668,14 @@ const App: React.FC = () => {
                       : "bg-jungle-800/80 border-jungle-500/50 text-stone-200 hover:bg-jungle-700/80"
                   }`}
                 >
-                  {wKey === "week1"
-                    ? "Week 1"
-                    : wKey === "week2"
-                    ? "Week 2"
-                    : wKey === "week3"
-                    ? "Week 3"
-                    : "Week 4"}
+                  {wKey === "week1" ? "Week 1" : "Week 2"}
                 </button>
               ))}
             </div>
+            <PrizeBanner prizes={[
+              { rank: "1st", prize: "Pie a Teacher!", icon: "🥧", gold: true },
+              { rank: "2nd", prize: "Pie a Teacher!", icon: "👨‍🏫" },
+            ]} />
             <div className="space-y-2.5 sm:space-y-3 max-h-[320px] overflow-y-auto pr-1">
               {weeklyRanking.slice(0, 10).map((st, idx) => (
                 <ProfileRow
@@ -717,58 +692,6 @@ const App: React.FC = () => {
               {weeklyRanking.length === 0 ? (
                 <p className="text-xs sm:text-sm text-stone-200/85 font-body">
                   No donors have been recorded for this week yet.
-                </p>
-              ) : null}
-            </div>
-          </SectionCard>
-
-          <SectionCard
-            title="Top Boarder Donors"
-            subtitle="Boarding students rallying from across campus."
-            defaultOpen={false}
-          >
-            <div className="space-y-2.5 sm:space-y-3 max-h-[260px] overflow-y-auto pr-1">
-              {boarderRanking.slice(0, 10).map((st, idx) => (
-                <ProfileRow
-                  key={st.id}
-                  rank={idx + 1}
-                  name={st.name}
-                  grade={st.grade}
-                  houseOrClan={st.houseOrClan}
-                  divisionLabel={st.division}
-                  isBoarder={st.isBoarder}
-                  total={st.totals.overall}
-                />
-              ))}
-              {boarderRanking.length === 0 ? (
-                <p className="text-xs sm:text-sm text-stone-200/85 font-body">
-                  No boarder donations recorded yet.
-                </p>
-              ) : null}
-            </div>
-          </SectionCard>
-
-          <SectionCard
-            title="Top Day Boy Donors"
-            subtitle="Day students powering SpringSmash from home."
-            defaultOpen={false}
-          >
-            <div className="space-y-2.5 sm:space-y-3 max-h-[260px] overflow-y-auto pr-1">
-              {dayRanking.slice(0, 10).map((st, idx) => (
-                <ProfileRow
-                  key={st.id}
-                  rank={idx + 1}
-                  name={st.name}
-                  grade={st.grade}
-                  houseOrClan={st.houseOrClan}
-                  divisionLabel={st.division}
-                  isBoarder={st.isBoarder}
-                  total={st.totals.overall}
-                />
-              ))}
-              {dayRanking.length === 0 ? (
-                <p className="text-xs sm:text-sm text-stone-200/85 font-body">
-                  No day boy donations recorded yet.
                 </p>
               ) : null}
             </div>
@@ -853,12 +776,15 @@ const App: React.FC = () => {
           </SectionCard>
 
           <SectionCard
-            title="Top Advisory Standings"
-            subtitle="All advisories (US + MS) ranked by combined member donations."
+            title="Top US Advisory Standings"
+            subtitle="Upper School advisories ranked by combined member donations."
             defaultOpen
           >
+            <PrizeBanner prizes={[
+              { rank: "1st", prize: "Osmow's Platter", icon: "🥙", gold: true },
+            ]} />
             <div className="space-y-2.5 sm:space-y-3 max-h-[360px] overflow-y-auto pr-1">
-              {topAdvisoryStandings.map((adv, idx) => {
+              {usAdvisoryStandings.map((adv, idx) => {
                 const rankStyle =
                   idx === 0
                     ? "text-amber-400 border-amber-400/50 bg-amber-400/10"
@@ -883,47 +809,7 @@ const App: React.FC = () => {
                   </div>
                 );
               })}
-              {topAdvisoryStandings.length === 0 ? (
-                <p className="text-xs sm:text-sm text-stone-200/85 font-body">
-                  No advisory donations recorded yet.
-                </p>
-              ) : null}
-            </div>
-          </SectionCard>
-
-          <SectionCard
-            title="Top US Advisory Donors"
-            subtitle="Upper School advisories climbing the canopy together."
-            defaultOpen={false}
-          >
-            <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-3">
-              <select
-                value={selectedUSAdvisory}
-                onChange={(e) => setSelectedUSAdvisory(e.target.value)}
-                className="rounded-2xl bg-jungle-800/80 border-2 border-jungle-500/50 px-3 py-2 text-xs sm:text-sm text-stone-100 font-body focus:outline-none focus:ring-2 focus:ring-jungle-orange/60"
-              >
-                <option value="ALL">All US Advisories</option>
-                {usAdvisories.map((adv) => (
-                  <option key={adv} value={adv}>
-                    {adv}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="space-y-2.5 sm:space-y-3 max-h-[260px] overflow-y-auto pr-1">
-              {usAdvisoryRanking.map((st, idx) => (
-                <ProfileRow
-                  key={st.id}
-                  rank={idx + 1}
-                  name={st.name}
-                  grade={st.grade}
-                  houseOrClan={st.houseOrClan}
-                  divisionLabel={st.division}
-                  isBoarder={st.isBoarder}
-                  total={st.totals.overall}
-                />
-              ))}
-              {usAdvisoryRanking.length === 0 ? (
+              {usAdvisoryStandings.length === 0 ? (
                 <p className="text-xs sm:text-sm text-stone-200/85 font-body">
                   No Upper School advisory donations recorded yet.
                 </p>
@@ -932,38 +818,40 @@ const App: React.FC = () => {
           </SectionCard>
 
           <SectionCard
-            title="Top MS Advisory Donors"
-            subtitle="Middle School advisories building the jungle roots."
-            defaultOpen={false}
+            title="Top MS Advisory Standings"
+            subtitle="Middle School advisories ranked by combined member donations."
+            defaultOpen
           >
-            <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-3">
-              <select
-                value={selectedMSAdvisory}
-                onChange={(e) => setSelectedMSAdvisory(e.target.value)}
-                className="rounded-2xl bg-jungle-800/80 border-2 border-jungle-500/50 px-3 py-2 text-xs sm:text-sm text-stone-100 font-body focus:outline-none focus:ring-2 focus:ring-jungle-orange/60"
-              >
-                <option value="ALL">All MS Advisories</option>
-                {msAdvisories.map((adv) => (
-                  <option key={adv} value={adv}>
-                    {adv}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="space-y-2.5 sm:space-y-3 max-h-[260px] overflow-y-auto pr-1">
-              {msAdvisoryRanking.map((st, idx) => (
-                <ProfileRow
-                  key={st.id}
-                  rank={idx + 1}
-                  name={st.name}
-                  grade={st.grade}
-                  houseOrClan={st.houseOrClan}
-                  divisionLabel={st.division}
-                  isBoarder={st.isBoarder}
-                  total={st.totals.overall}
-                />
-              ))}
-              {msAdvisoryRanking.length === 0 ? (
+            <PrizeBanner prizes={[
+              { rank: "1st", prize: "Pizzaville Party Size", icon: "🍕", gold: true },
+            ]} />
+            <div className="space-y-2.5 sm:space-y-3 max-h-[360px] overflow-y-auto pr-1">
+              {msAdvisoryStandings.map((adv, idx) => {
+                const rankStyle =
+                  idx === 0
+                    ? "text-amber-400 border-amber-400/50 bg-amber-400/10"
+                    : idx === 1
+                    ? "text-slate-300 border-slate-300/50 bg-slate-300/10"
+                    : idx === 2
+                    ? "text-amber-600 border-amber-600/50 bg-amber-600/10"
+                    : "text-stone-400 border-stone-500/30 bg-stone-500/10";
+                return (
+                  <div
+                    key={adv.name}
+                    className="flex items-center gap-3 rounded-2xl border border-jungle-500/25 bg-jungle-800/70 px-4 py-3 shadow-bubble-sm"
+                  >
+                    <div
+                      className={`w-8 h-8 rounded-full border-2 flex items-center justify-center font-bubble text-sm shrink-0 ${rankStyle}`}
+                    >
+                      {idx + 1}
+                    </div>
+                    <span className="flex-1 font-bubble text-sm sm:text-base text-white">
+                      {adv.name}
+                    </span>
+                  </div>
+                );
+              })}
+              {msAdvisoryStandings.length === 0 ? (
                 <p className="text-xs sm:text-sm text-stone-200/85 font-body">
                   No Middle School advisory donations recorded yet.
                 </p>
@@ -976,6 +864,11 @@ const App: React.FC = () => {
             subtitle="Faculty and staff leading by example."
             defaultOpen={false}
           >
+            <PrizeBanner prizes={[
+              { rank: "1st", prize: "$75 Visa Gift Card", icon: "💳", gold: true },
+              { rank: "2nd", prize: "$25 Starbucks", icon: "☕" },
+              { rank: "3rd", prize: "$25 Tim Hortons", icon: "🍵" },
+            ]} />
             <div className="space-y-2.5 sm:space-y-3 max-h-[320px] overflow-y-auto pr-1">
               {sortByTotal(visibleFaculty).map((f, idx) => (
                 <ProfileRow
