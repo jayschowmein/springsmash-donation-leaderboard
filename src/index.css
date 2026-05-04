@@ -6,12 +6,12 @@ body {
   @apply font-body bg-jungle-950 text-white;
 }
 
-/* Jungle scene background — high-res Unsplash photo (misty forest path).
+/* Jungle scene background — fern canopy photo (public/assets/jungle-scene1.jpg).
    Gradient overlay adds green tint and depth for readability. */
 .jungle-layer {
   background-image:
     linear-gradient(180deg, rgba(22, 163, 74, 0.18), rgba(6, 95, 70, 0.65)),
-    url("https://images.unsplash.com/photo-1575489272413-cb506258027e?auto=format&fit=crop&w=1920&q=85");
+    url("/assets/jungle-scene1.jpg");
   background-repeat: no-repeat;
   background-position: center center;
   background-size: cover;
