@@ -6,15 +6,34 @@ body {
   @apply font-body bg-jungle-950 text-white;
 }
 
-/* Jungle scene background: reference-style forest + gradients
-   - expects image at /assets/jungle-scene.png (placed in public/assets)
-   - gradients add depth and help it scale vertically */
+/* Jungle scene background — pure CSS gradient (crisp at any resolution).
+   Layers: canopy-light bloom at top, dense foliage vignettes on sides,
+   deep forest floor at bottom, rich green mid-section. */
 .jungle-layer {
+  background-color: #051e12;
   background-image:
-    linear-gradient(180deg, rgba(22, 163, 74, 0.18), rgba(6, 95, 70, 0.65)),
-    url("/assets/jungle-scene.png");
+    /* Canopy light bloom from above */
+    radial-gradient(ellipse 90% 40% at 50% 0%,   rgba(74, 222, 128, 0.10) 0%, transparent 100%),
+    radial-gradient(ellipse 40% 55% at 18% 0%,   rgba(34, 197, 94, 0.07)  0%, transparent 100%),
+    radial-gradient(ellipse 40% 55% at 82% 0%,   rgba(34, 197, 94, 0.07)  0%, transparent 100%),
+    /* Dense foliage on both sides */
+    radial-gradient(ellipse 52% 100% at 0%   50%, rgba(2, 8, 4, 0.82)     0%, transparent 100%),
+    radial-gradient(ellipse 52% 100% at 100% 50%, rgba(2, 8, 4, 0.82)     0%, transparent 100%),
+    /* Floor shadow */
+    radial-gradient(ellipse 80% 25% at 50% 100%,  rgba(2, 8, 4, 0.70)     0%, transparent 100%),
+    /* Base canopy gradient */
+    linear-gradient(180deg,
+      #020b04  0%,
+      #051e12 10%,
+      #0a2e1a 26%,
+      #0e4a24 44%,
+      #124a22 60%,
+      #0a2918 76%,
+      #051e12 90%,
+      #020b04 100%
+    );
   background-repeat: no-repeat;
-  background-position: center top;
+  background-position: center;
   background-size: cover;
   background-attachment: scroll;
 }

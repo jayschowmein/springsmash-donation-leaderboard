@@ -759,6 +759,9 @@ const App: React.FC = () => {
                     <span className="flex-1 font-bubble text-sm sm:text-base text-white">
                       {house.name}
                     </span>
+                    <span className="font-bubble text-sm text-emerald-300 tabular-nums shrink-0">
+                      ${house.total.toLocaleString()}
+                    </span>
                   </div>
                 );
               })}
@@ -797,6 +800,9 @@ const App: React.FC = () => {
                     </div>
                     <span className="flex-1 font-bubble text-sm sm:text-base text-white">
                       {clan.name}
+                    </span>
+                    <span className="font-bubble text-sm text-emerald-300 tabular-nums shrink-0">
+                      ${clan.total.toLocaleString()}
                     </span>
                   </div>
                 );
@@ -840,6 +846,9 @@ const App: React.FC = () => {
                     <span className="flex-1 font-bubble text-sm sm:text-base text-white">
                       {adv.name}
                     </span>
+                    <span className="font-bubble text-sm text-emerald-300 tabular-nums shrink-0">
+                      ${adv.total.toLocaleString()}
+                    </span>
                   </div>
                 );
               })}
@@ -881,6 +890,9 @@ const App: React.FC = () => {
                     </div>
                     <span className="flex-1 font-bubble text-sm sm:text-base text-white">
                       {adv.name}
+                    </span>
+                    <span className="font-bubble text-sm text-emerald-300 tabular-nums shrink-0">
+                      ${adv.total.toLocaleString()}
                     </span>
                   </div>
                 );
