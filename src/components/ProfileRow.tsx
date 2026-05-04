@@ -88,13 +88,6 @@ const ProfileRow: React.FC<ProfileRowProps> = ({
         </div>
       </div>
 
-      {typeof total === "number" && (
-        <div className="relative shrink-0 text-right ml-1">
-          <p className="font-bubble text-sm sm:text-base text-emerald-300 tabular-nums drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)]">
-            ${total.toLocaleString()}
-          </p>
-        </div>
-      )}
     </div>
   );
 };
