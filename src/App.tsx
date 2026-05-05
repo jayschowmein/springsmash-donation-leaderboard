@@ -691,7 +691,7 @@ const App: React.FC = () => {
             defaultOpen
           >
             <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
-              {(["week1", "week2"] as WeekKey[]).map((wKey) => (
+              {(["week1", "week2", "week3"] as WeekKey[]).map((wKey) => (
                 <button
                   key={wKey}
                   type="button"
@@ -702,7 +702,7 @@ const App: React.FC = () => {
                       : "bg-jungle-800/80 border-jungle-500/50 text-stone-200 hover:bg-jungle-700/80"
                   }`}
                 >
-                  {wKey === "week1" ? "Week 1" : "Week 2"}
+                  {wKey === "week1" ? "Week 1" : wKey === "week2" ? "Week 2" : "Week 3"}
                 </button>
               ))}
             </div>
